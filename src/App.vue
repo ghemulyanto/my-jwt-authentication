@@ -1,60 +1,39 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
+  <v-app id="application">
+    <v-app-bar app color="indigo" dark class="hidden-xs-and-down">
+      <v-toolbar-title>
+        <router-link to="/" tag="span" style="cursor: pointer">
+        The Application
+        </router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-toolbar-items class="hidden-xs-only">
+        <v-btn text v-for="item in menuItems" :key="item.title" :to="item.path" :title="item.desc">
+          <v-icon left>{{item.icon}}</v-icon>
+          {{item.title}}
+        </v-btn>
+      </v-toolbar-items>
     </v-app-bar>
-
     <v-content>
-      <HelloWorld/>
+      <router-view/>
     </v-content>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
-
 export default {
   name: 'App',
-
-  components: {
-    HelloWorld,
+  data() {
+    return {
+    }
   },
-
-  data: () => ({
-    //
-  }),
-};
+  computed: {
+    menuItems() {
+      return [
+        {title: 'Sign Up', path: '/signup', icon: 'mdi-clipboard-text', desc:'Member Registration'},
+        {title: 'Sign In', path: '/signin', icon: 'mdi-login', desc:"Login to Application"},
+      ]
+    }
+  }
+}
 </script>
