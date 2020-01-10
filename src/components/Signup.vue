@@ -9,17 +9,19 @@
           </v-card-title>
           <v-row justify="center">
             <v-col cols="12" md="24">
-              <v-form v-model="valid">
+              <v-form v-model="valid" @submit.prevent="handleRegister">
                 <v-container class="py-0">
                   <v-row>
                     <v-col cols="12" md="4" sm="8">
                       <v-text-field
                         label="Username"
                         class="purple-input"
-                        v-model="username"
-                        :rules="usernameRules"
+                        v-model="user.username"
                         :counter="20"
+                        :error-messages="usernameErrors"
                         required
+                        @input="$v.user.username.$touch()"
+                        @blur="$v.user.username.$touch()"
                       />
                     </v-col>
 
@@ -27,9 +29,12 @@
                       <v-text-field
                         label="Email Address"
                         class="purple-input"
-                        v-model="email"
-                        :rules="emailRules"
+                        v-model="user.email"
                         required
+                        :counter="50"
+                        :error-messages="emailErrors"
+                        @input="$v.user.email.$touch()"
+                        @blur="$v.user.email.$touch()"
                       />
                     </v-col>
 
@@ -38,10 +43,13 @@
                         label="Password"
                         class="purple-input"
                         type="password"
-                        v-model="password"
-                        :rules="passwordRules"
+                        v-model="user.password"
                         hint="At least 8 characters"
                         required
+                        :counter="40"
+                        @input="$v.user.password.$touch()"
+                        @blur="$v.user.password.$touch()"
+                        :error-messages="passwordErrors"
                       />
                     </v-col>
 
@@ -60,24 +68,58 @@
 </template>
 
 <script>
+import User from "../models/user";
+import { validationMixin } from "vuelidate";
+import {
+  required,
+  maxLength,
+  minLength,
+  email
+} from "vuelidate/lib/validators";
+
 export default {
+  mixins: [validationMixin],
+  validations: {
+    user: {
+      username: { required, maxLength: maxLength(20), minLength: minLength(3) },
+      email: { required, maxLength: maxLength(50), email },
+      password: { required, maxLength: maxLength(40), minLength: minLength(8) }
+    }
+  },
   data: () => ({
     valid: false,
-    username: "",
-    usernameRules: [
-      v => !!v || "Username is required",
-      v => v.length <= 20 || "Username must be less than 20 characters"
-    ],
-    email: "",
-    emailRules: [
-      v => !!v || "Email is required",
-      v => /.+@.+/.test(v) || "Email must be valid"
-    ],
-    password: "",
-    passwordRules: [
-      v => !!v || "Password is required",
-      v => v.length >= 8 || "Minimum password is 8 characters"
-    ]
-  })
+    user: new User("", "", "")
+  }),
+  computed: {
+    usernameErrors() {
+      const errors = [];
+      if (!this.$v.user.username.$dirty) return errors;
+      !this.$v.user.username.maxLength &&
+        errors.push("Maximum 20 characters long");
+      !this.$v.user.username.minLength &&
+        errors.push("Minimum 3 characters long");
+      !this.$v.user.username.required && errors.push("Is required");
+      return errors;
+    },
+    emailErrors() {
+      const errors = [];
+      if (!this.$v.user.email.$dirty) return errors;
+      !this.$v.user.email.maxLength &&
+        errors.push("Maximum 50 characters long");
+      !this.$v.user.email.required && errors.push("Is required");
+      !this.$v.user.email.email && errors.push("Not valid");
+      return errors;
+    },
+    passwordErrors() {
+      const errors = [];
+      if (!this.$v.user.password.$dirty) return errors;
+      !this.$v.user.password.maxLength &&
+        errors.push("Maximum 40 characters long");
+      !this.$v.user.password.minLength &&
+        errors.push("Minimum 8 characters long");
+      !this.$v.user.password.required && errors.push("Is required");
+      return errors;
+    }
+  }
 };
 </script>
