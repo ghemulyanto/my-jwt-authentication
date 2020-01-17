@@ -7,6 +7,7 @@
             <v-icon large left>mdi-account-circle</v-icon>
             <span class="title font-weight-light">Sign Up</span>
           </v-card-title>
+          <v-snackbar v-model="snackbar" :color="snackbarColor" multi-line="true">{{ message }}</v-snackbar>
           <v-row justify="center">
             <v-col cols="12" md="24">
               <v-form v-model="valid" @submit.prevent="handleRegister">
@@ -78,6 +79,7 @@ import {
 } from "vuelidate/lib/validators";
 
 export default {
+  name: "signup",
   mixins: [validationMixin],
   validations: {
     user: {
@@ -88,7 +90,11 @@ export default {
   },
   data: () => ({
     valid: false,
-    user: new User("", "", "")
+    user: new User("", "", ""),
+    message: "",
+    successful: false,
+    snackbar: false,
+    snackbarColor: ""
   }),
   computed: {
     usernameErrors() {
@@ -119,6 +125,29 @@ export default {
         errors.push("Minimum 8 characters long");
       !this.$v.user.password.required && errors.push("Is required");
       return errors;
+    }
+  },
+  methods: {
+    handleRegister() {
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        this.$store.dispatch("auth/register", this.user).then(
+          data => {
+            this.message = data.message;
+            this.successful = true;
+            this.$v.$reset();
+            this.user = new User("", "", "");
+            this.snackbar = true;
+            this.snackbarColor = "info";
+          },
+          error => {
+            this.message = error.message;
+            this.successful = false;
+            this.snackbar = true;
+            this.snackbarColor = "error";
+          }
+        );
+      }
     }
   }
 };

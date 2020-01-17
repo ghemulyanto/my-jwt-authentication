@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/auth";
+const API_URL = "http://localhost:8080/api/auth/";
 
 class AuthService {
   login(user) {
@@ -36,7 +36,7 @@ class AuthService {
       location.reload(true);
 
       const error = response.data && response.data.message;
-      return Promise.resolve(response);
+      return Promise.resolve(error);
     }
     return Promise.resolve(response);
   }
