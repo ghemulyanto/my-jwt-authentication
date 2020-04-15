@@ -4,6 +4,7 @@ import Signin from "@/components/Signin";
 import Signup from "@/components/Signup";
 import Profile from "@/components/Profile";
 import Home from "@/components/Home";
+import About from "@/components/About";
 import BoardUser from "@/components/BoardUser";
 import BoardAdmin from "@/components/BoardAdmin";
 import BoardModerator from "@/components/BoardModerator";
@@ -21,6 +22,10 @@ const router = new Router({
     {
       path: "/home",
       component: Home,
+    },
+    {
+      path: "/about",
+      component: About,
     },
     {
       path: "/signin",

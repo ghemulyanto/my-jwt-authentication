@@ -154,17 +154,19 @@ export default {
     }
   },
   mounted() {
-    MasterService.getRoles().then(
-      response => {
-        this.roles = response.data;
-      },
-      error => {
-        this.roles =
-          (error.response && error.response.data) ||
-          error.message ||
-          error.toString();
-      }
-    );
+    if (this.adminRole) {
+      MasterService.getRoles().then(
+        response => {
+          this.roles = response.data;
+        },
+        error => {
+          this.roles =
+            (error.response && error.response.data) ||
+            error.message ||
+            error.toString();
+        }
+      );
+    }
   },
   methods: {
     handleRegister() {

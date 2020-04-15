@@ -126,7 +126,7 @@ export default {
           icon: "mdi-clipboard-account",
           desc: "User Dashboard"
         },
-        { title: "About", icon: "mdi-information" }
+        { title: "About", path: "/about", icon: "mdi-information" }
       ],
       adminModeratorItems: [
         {
@@ -153,7 +153,7 @@ export default {
           icon: "mdi-clipboard-account",
           desc: "User Dashboard"
         },
-        { title: "About", icon: "mdi-information" }
+        { title: "About", path: "/about", icon: "mdi-information" }
       ],
       moderatorItems: [
         {
@@ -168,7 +168,7 @@ export default {
           icon: "mdi-clipboard-account",
           desc: "User Dashboard"
         },
-        { title: "About", icon: "mdi-information" }
+        { title: "About", path: "/about", icon: "mdi-information" }
       ],
 
       userItems: [
@@ -178,7 +178,7 @@ export default {
           icon: "mdi-clipboard-account",
           desc: "User Dashboard"
         },
-        { title: "About", icon: "mdi-information" }
+        { title: "About", path: "/about", icon: "mdi-information" }
       ]
     };
   },
