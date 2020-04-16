@@ -1,5 +1,10 @@
 <template>
   <v-container fluid>
+    <v-snackbar v-model="snackbar" :color="snackbarColor">
+      {{
+      message
+      }}
+    </v-snackbar>
     <v-layout row wrap>
       <v-flex xs12 class="text-sm-center" mt-5>
         <h1>Sign In</h1>
@@ -52,6 +57,15 @@ export default {
       password: { required }
     }
   },
+  data() {
+    return {
+      user: new User("", ""),
+      loading: false,
+      snackbar: false,
+      snackbarColor: "",
+      message: ""
+    };
+  },
   computed: {
     usernameErrors() {
       const errors = [];
@@ -69,13 +83,7 @@ export default {
       return this.$store.state.auth.status.loggedIn;
     }
   },
-  data() {
-    return {
-      user: new User("", ""),
-      loading: false,
-      message: ""
-    };
-  },
+
   mounted() {
     if (this.loggedIn) {
       this.$router.push("/profile");
@@ -96,7 +104,15 @@ export default {
             },
             error => {
               this.loading = false;
-              this.message = error.message;
+              if (error.status === 401) {
+                this.message =
+                  "Your username or password is incorrect. Please try again!";
+              } else {
+                this.message = error.message;
+              }
+
+              this.snackbar = true;
+              this.snackbarColor = "error";
             }
           );
         }
