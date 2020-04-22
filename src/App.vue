@@ -102,86 +102,92 @@
 </template>
 
 <script>
+import {
+  INACTIVE_USER_TIME_THRESHOLD,
+  USER_ACTIVITY_THROTTLER_TIME
+} from "@/constants/constant";
+
 export default {
   name: "App",
-  data() {
-    return {
-      drawer: false,
-      adminItems: [
-        {
-          title: "Admin Board",
-          path: "/admin",
-          icon: "mdi-clipboard-account",
-          desc: "Admin Dashboard"
-        },
-        {
-          title: "Add User",
-          path: "/signup",
-          icon: "mdi-account-plus",
-          desc: "Add New User"
-        },
-        {
-          title: "User Board",
-          path: "/user",
-          icon: "mdi-clipboard-account",
-          desc: "User Dashboard"
-        },
-        { title: "About", path: "/about", icon: "mdi-information" }
-      ],
-      adminModeratorItems: [
-        {
-          title: "Admin Board",
-          path: "/admin",
-          icon: "mdi-clipboard-account",
-          desc: "Admin Dashboard"
-        },
-        {
-          title: "Moderator Board",
-          path: "/moderator",
-          icon: "mdi-clipboard-account",
-          desc: "Moderator Dashboard"
-        },
-        {
-          title: "Add User",
-          path: "/signup",
-          icon: "mdi-account-plus",
-          desc: "Add New User"
-        },
-        {
-          title: "User Board",
-          path: "/user",
-          icon: "mdi-clipboard-account",
-          desc: "User Dashboard"
-        },
-        { title: "About", path: "/about", icon: "mdi-information" }
-      ],
-      moderatorItems: [
-        {
-          title: "Moderator Board",
-          path: "/moderator",
-          icon: "mdi-clipboard-account",
-          desc: "Moderator Dashboard"
-        },
-        {
-          title: "User Board",
-          path: "/user",
-          icon: "mdi-clipboard-account",
-          desc: "User Dashboard"
-        },
-        { title: "About", path: "/about", icon: "mdi-information" }
-      ],
+  data: () => ({
+    isInactive: false,
+    userActivityThrottlerTimeout: null,
+    userActivityTimeout: null,
+    drawer: false,
+    adminItems: [
+      {
+        title: "Admin Board",
+        path: "/admin",
+        icon: "mdi-clipboard-account",
+        desc: "Admin Dashboard"
+      },
+      {
+        title: "Add User",
+        path: "/signup",
+        icon: "mdi-account-plus",
+        desc: "Add New User"
+      },
+      {
+        title: "User Board",
+        path: "/user",
+        icon: "mdi-clipboard-account",
+        desc: "User Dashboard"
+      },
+      { title: "About", path: "/about", icon: "mdi-information" }
+    ],
+    adminModeratorItems: [
+      {
+        title: "Admin Board",
+        path: "/admin",
+        icon: "mdi-clipboard-account",
+        desc: "Admin Dashboard"
+      },
+      {
+        title: "Moderator Board",
+        path: "/moderator",
+        icon: "mdi-clipboard-account",
+        desc: "Moderator Dashboard"
+      },
+      {
+        title: "Add User",
+        path: "/signup",
+        icon: "mdi-account-plus",
+        desc: "Add New User"
+      },
+      {
+        title: "User Board",
+        path: "/user",
+        icon: "mdi-clipboard-account",
+        desc: "User Dashboard"
+      },
+      { title: "About", path: "/about", icon: "mdi-information" }
+    ],
+    moderatorItems: [
+      {
+        title: "Moderator Board",
+        path: "/moderator",
+        icon: "mdi-clipboard-account",
+        desc: "Moderator Dashboard"
+      },
+      {
+        title: "User Board",
+        path: "/user",
+        icon: "mdi-clipboard-account",
+        desc: "User Dashboard"
+      },
+      { title: "About", path: "/about", icon: "mdi-information" }
+    ],
 
-      userItems: [
-        {
-          title: "User Board",
-          path: "/user",
-          icon: "mdi-clipboard-account",
-          desc: "User Dashboard"
-        },
-        { title: "About", path: "/about", icon: "mdi-information" }
-      ]
-    };
-  },
+    userItems: [
+      {
+        title: "User Board",
+        path: "/user",
+        icon: "mdi-clipboard-account",
+        desc: "User Dashboard"
+      },
+      { title: "About", path: "/about", icon: "mdi-information" }
+    ]
+  }),
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
@@ -230,7 +236,51 @@ export default {
       this.drawer = false;
       this.$store.dispatch("auth/logout");
       this.$router.push("/signin");
+    },
+
+    activateActivitiyTracker() {
+      window.addEventListener("mousemove", this.userActivityThrottler);
+      window.addEventListener("scroll", this.userActivityThrottler);
+      window.addEventListener("keydown", this.userActivityThrottler);
+      window.addEventListener("resize", this.userActivityThrottler);
+    },
+    deactivateActivityTracker() {
+      window.removeEventListener("mousemove", this.userActivityThrottler);
+      window.removeEventListener("scroll", this.userActivityThrottler);
+      window.removeEventListener("keydown", this.userActivityThrottler);
+      window.removeEventListener("resize", this.userActivityThrottler);
+    },
+    resetUserActivityTimeout() {
+      clearTimeout(this.userActivityTimeout);
+      this.userActivityTimeout = setTimeout(() => {
+        this.userActivityThrottler();
+        this.inactiveUserAction();
+      }, INACTIVE_USER_TIME_THRESHOLD);
+    },
+    userActivityThrottler() {
+      if (this.isInactive) {
+        this.isInactive = false;
+      }
+      if (!this.userActivityThrottlerTimeout) {
+        this.userActivityThrottlerTimeout = setTimeout(() => {
+          this.resetUserActivityTimeout();
+          clearTimeout(this.userActivityThrottlerTimeout);
+          this.userActivityThrottlerTimeout = null;
+        }, USER_ACTIVITY_THROTTLER_TIME);
+      }
+    },
+    inactiveUserAction() {
+      this.isInactive = true;
+      this.logOut();
     }
+  },
+  beforeMount() {
+    this.activateActivitiyTracker();
+  },
+  beforeDestroy() {
+    this.deactivateActivityTracker();
+    clearTimeout(this.userActivityTimeout);
+    clearTimeout(this.userActivityThrottlerTimeout);
   }
 };
 </script>
